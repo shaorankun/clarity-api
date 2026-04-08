@@ -45,18 +45,13 @@ public class JwtService {
                 .compact();
     }
 
-    // Decode JWT secret to SecretKey type for sign/validate (Verify token)
-    private SecretKey getSignedKey() {
-        byte[] keyBytes = io.jsonwebtoken.io.Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
     // For validating user when already log in
     public boolean isTokenValid(String token, String email) {
         final String extractedEmail = extractEmail(token);
         return extractedEmail.equals(email) && !isTokenExpired(token);
     }
 
+    // Public for using
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -83,6 +78,12 @@ public class JwtService {
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    // Decode JWT secret to SecretKey type for sign/validate (Verify token)
+    private SecretKey getSignedKey() {
+        byte[] keyBytes = io.jsonwebtoken.io.Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
 }
