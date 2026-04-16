@@ -60,9 +60,15 @@ public class FocusSessionService {
 
     // Update session when user end that session
     public SessionResponse endSession(User user, EndSessionRequest endSessionRequest) {
+
         FocusSession focusSession = focusSessionRepository.findById(endSessionRequest.getId()).orElseThrow(
                 () -> new RuntimeException("No session found for id: " + endSessionRequest.getId())
         );
+
+        // Not allowing modification after ending a session
+        if (!focusSession.getStatus().equals("IN_PROGRESS")) {
+            throw new RuntimeException("Session has already been ended");
+        }
 
         // Need to add check for current user match the session user
         if (!focusSession.getUser().getId().equals(user.getId())) {

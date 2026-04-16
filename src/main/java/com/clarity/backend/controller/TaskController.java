@@ -3,6 +3,7 @@ package com.clarity.backend.controller;
 import com.clarity.backend.dto.TaskRequest;
 import com.clarity.backend.dto.TaskResponse;
 import com.clarity.backend.model.User;
+import com.clarity.backend.security.SecurityUtils;
 import com.clarity.backend.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,43 +21,31 @@ import java.util.UUID;
 public class TaskController {
 
     private final TaskService taskService;
+    private final SecurityUtils securityUtils;
 
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getAllTasks() {
-        return ResponseEntity.status(200).body(taskService.getTasks(getCurrentUser()));
+        return ResponseEntity.status(200).body(taskService.getTasks(securityUtils.getCurrentUser()));
     }
 
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody TaskRequest taskRequest) {
-        return ResponseEntity.status(201).body(taskService.createTask(getCurrentUser(), taskRequest));
+        return ResponseEntity.status(201).body(taskService.createTask(securityUtils.getCurrentUser(), taskRequest));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable UUID id, @Valid @RequestBody TaskRequest taskRequest) {
-        return ResponseEntity.status(200).body(taskService.updateTask(id, getCurrentUser(), taskRequest));
+        return ResponseEntity.status(200).body(taskService.updateTask(id, securityUtils.getCurrentUser(), taskRequest));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
-        taskService.deleteTask(id, getCurrentUser());
+        taskService.deleteTask(id, securityUtils.getCurrentUser());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/complete")
     public ResponseEntity<TaskResponse> patchTask(@PathVariable UUID id) {
-        return ResponseEntity.status(200).body(taskService.completeTask(id, getCurrentUser()));
-    }
-
-    // Avoiding sent user information in request body (BOLA security exploit)
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        return (User) authentication.getPrincipal();
+        return ResponseEntity.status(200).body(taskService.completeTask(id, securityUtils.getCurrentUser()));
     }
 }
