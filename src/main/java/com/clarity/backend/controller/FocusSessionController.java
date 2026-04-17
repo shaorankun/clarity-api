@@ -3,7 +3,6 @@ package com.clarity.backend.controller;
 import com.clarity.backend.dto.EndSessionRequest;
 import com.clarity.backend.dto.SessionResponse;
 import com.clarity.backend.dto.StartSessionRequest;
-import com.clarity.backend.model.FocusSession;
 import com.clarity.backend.security.SecurityUtils;
 import com.clarity.backend.service.FocusSessionService;
 import jakarta.validation.Valid;
