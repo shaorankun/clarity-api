@@ -1,8 +1,6 @@
 package com.clarity.backend.service;
 
-import com.clarity.backend.dto.AuthResponse;
-import com.clarity.backend.dto.LoginRequest;
-import com.clarity.backend.dto.RegisterRequest;
+import com.clarity.backend.dto.*;
 import com.clarity.backend.model.User;
 import com.clarity.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -75,5 +73,18 @@ public class UserService {
                 user.getDisplayName(),
                 user.getAvatarUrl()
         );
+    }
+
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+        String email = jwtService.extractEmail(refreshToken);
+
+        if (!jwtService.isTokenValid(refreshToken, email)){
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String accessToken = jwtService.generateAccessToken(email);
+        return new RefreshTokenResponse(accessToken);
     }
 }

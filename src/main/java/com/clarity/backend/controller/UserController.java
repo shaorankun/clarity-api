@@ -1,8 +1,6 @@
 package com.clarity.backend.controller;
 
-import com.clarity.backend.dto.AuthResponse;
-import com.clarity.backend.dto.LoginRequest;
-import com.clarity.backend.dto.RegisterRequest;
+import com.clarity.backend.dto.*;
 import com.clarity.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +27,9 @@ public class UserController {
         return ResponseEntity.ok(userService.login(loginRequest));
     }
 
-    public void refreshToken() {
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return ResponseEntity.ok(userService.refreshToken(refreshTokenRequest));
     }
+
 }
