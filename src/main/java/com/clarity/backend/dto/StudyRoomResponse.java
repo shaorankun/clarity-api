@@ -1,6 +1,5 @@
 package com.clarity.backend.dto;
 
-import com.clarity.backend.model.RoomMember;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
