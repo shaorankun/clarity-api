@@ -20,6 +20,6 @@ public class RoomSessionResponse {
 
     private LocalDateTime startedAt;
 
-    private int durationMinutes;
+    private Integer durationMinutes;
 
 }
