@@ -1,0 +1,11 @@
+package com.clarity.backend.repository;
+
+import com.clarity.backend.model.RoomSession;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface RoomSessionRepository extends JpaRepository<RoomSession, UUID> {
+
+    RoomSession findByRoomId(UUID roomId);
+}
