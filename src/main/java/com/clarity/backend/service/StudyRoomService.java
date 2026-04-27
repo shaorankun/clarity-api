@@ -5,9 +5,11 @@ import com.clarity.backend.dto.RoomMemberResponse;
 import com.clarity.backend.dto.StudyRoomRequest;
 import com.clarity.backend.dto.StudyRoomResponse;
 import com.clarity.backend.model.RoomMember;
+import com.clarity.backend.model.RoomSession;
 import com.clarity.backend.model.StudyRoom;
 import com.clarity.backend.model.User;
 import com.clarity.backend.repository.RoomMemberRepository;
+import com.clarity.backend.repository.RoomSessionRepository;
 import com.clarity.backend.repository.StudyRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class StudyRoomService {
     private final RoomMemberRepository roomMemberRepository;
     private final RoomMemberService roomMemberService;
     private final StudyRoomRepository studyRoomRepository;
+    private final RoomSessionRepository roomSessionRepository;
 
     // Create a new study room
     public StudyRoomResponse createStudyRoom(User user, StudyRoomRequest studyRoomRequest) {
@@ -51,6 +54,13 @@ public class StudyRoomService {
 
         studyRoomRepository.save(studyRoom);
         roomMemberRepository.save(roomMember);
+
+        // Create a new room session along with this study room with default status "IDLE"
+        // Save after study room to get foreign key
+        RoomSession roomSession = new RoomSession();
+        roomSession.setRoom(studyRoom);
+        roomSession.setStatus("IDLE");
+        roomSessionRepository.save(roomSession);
 
         // Get a list of current room members in that room
         List<RoomMemberResponse> roomMembers = roomMemberService.getRoomMembers(studyRoom);
