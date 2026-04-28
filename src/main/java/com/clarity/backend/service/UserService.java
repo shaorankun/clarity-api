@@ -15,6 +15,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RedisRoomService redisRoomService;
 
     // Return response when register
     public AuthResponse register(RegisterRequest registerRequest) {
@@ -75,6 +76,11 @@ public class UserService {
         );
     }
 
+    // Blacklist refresh token when logout
+    public void logout(LogoutRequest logoutRequest) {
+        redisRoomService.blacklistToken(logoutRequest.getRefreshToken());
+    }
+
     public RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
 
         String refreshToken = refreshTokenRequest.getRefreshToken();
@@ -82,6 +88,10 @@ public class UserService {
 
         if (!jwtService.isTokenValid(refreshToken, email)){
             throw new RuntimeException("Invalid refresh token");
+        }
+
+        if (redisRoomService.isBlacklisted(refreshToken)) {
+            throw new RuntimeException("Refresh token has been revoked");
         }
 
         String accessToken = jwtService.generateAccessToken(email);
