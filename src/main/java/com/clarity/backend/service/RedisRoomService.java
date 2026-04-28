@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -62,5 +63,13 @@ public class RedisRoomService {
         String key = getKey(roomId);
 
         redisTemplate.delete(key);
+    }
+
+    public void blacklistToken(String token) {
+        redisTemplate.opsForValue().set(token, "blacklisted", 7, TimeUnit.DAYS);
+    }
+
+    public boolean isBlacklisted(String token) {
+        return redisTemplate.hasKey(token);
     }
 }
