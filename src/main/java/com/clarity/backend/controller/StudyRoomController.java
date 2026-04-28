@@ -1,6 +1,7 @@
 package com.clarity.backend.controller;
 
 import com.clarity.backend.dto.JoinRoomRequest;
+import com.clarity.backend.dto.RoomSessionResponse;
 import com.clarity.backend.dto.StudyRoomRequest;
 import com.clarity.backend.dto.StudyRoomResponse;
 import com.clarity.backend.security.SecurityUtils;
@@ -23,6 +24,11 @@ public class StudyRoomController {
     @GetMapping("/{id}")
     public ResponseEntity<StudyRoomResponse> getStudyRoom(@PathVariable UUID id) {
         return ResponseEntity.ok(studyRoomService.getStudyRoom(id));
+    }
+
+    @GetMapping("/{id}/state")
+    public ResponseEntity<RoomSessionResponse> getStudyRoomState(@PathVariable UUID id) {
+        return ResponseEntity.ok(studyRoomService.getStudyRoomState(id));
     }
 
     @PostMapping

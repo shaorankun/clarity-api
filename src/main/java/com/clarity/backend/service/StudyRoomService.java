@@ -1,9 +1,6 @@
 package com.clarity.backend.service;
 
-import com.clarity.backend.dto.JoinRoomRequest;
-import com.clarity.backend.dto.RoomMemberResponse;
-import com.clarity.backend.dto.StudyRoomRequest;
-import com.clarity.backend.dto.StudyRoomResponse;
+import com.clarity.backend.dto.*;
 import com.clarity.backend.model.RoomMember;
 import com.clarity.backend.model.RoomSession;
 import com.clarity.backend.model.StudyRoom;
@@ -27,6 +24,7 @@ public class StudyRoomService {
     private final RoomMemberService roomMemberService;
     private final StudyRoomRepository studyRoomRepository;
     private final RoomSessionRepository roomSessionRepository;
+    private final RedisRoomService redisRoomService;
 
     // Create a new study room
     public StudyRoomResponse createStudyRoom(User user, StudyRoomRequest studyRoomRequest) {
@@ -62,13 +60,23 @@ public class StudyRoomService {
         roomSession.setStatus("IDLE");
         roomSessionRepository.save(roomSession);
 
+        // Save room state to Redis
+        redisRoomService.saveRoomState(
+                new RoomSessionResponse(
+                        roomSession.getRoom().getId(),
+                        roomSession.getStatus(),
+                        roomSession.getStartedAt(),
+                        roomSession.getDurationMinutes()
+                )
+        );
+
         // Get a list of current room members in that room
         List<RoomMemberResponse> roomMembers = roomMemberService.getRoomMembers(studyRoom);
 
         return convertStudyRoomToResponse(studyRoom, roomMembers);
     }
 
-    // Get Study room information
+    // Get study room information
     public StudyRoomResponse getStudyRoom(UUID id) {
         // Check for room
         StudyRoom studyRoom = studyRoomRepository.findById(id)
@@ -78,6 +86,11 @@ public class StudyRoomService {
         List<RoomMemberResponse> roomMembers = roomMemberService.getRoomMembers(studyRoom);
 
         return convertStudyRoomToResponse(studyRoom, roomMembers);
+    }
+
+    // Get study room state (not all information like getStudyRoom
+    public RoomSessionResponse getStudyRoomState(UUID id) {
+        return redisRoomService.getRoomState(id);
     }
 
     // Join a new study room
@@ -106,7 +119,7 @@ public class StudyRoomService {
         // Remove user before check host
         roomMemberRepository.delete(roomMember);
 
-        // If the user is the host then transfer host
+        // If the user is the host then transfer host and delete room if it was the last person
         if (roomMember.getRoom().getOwnerUser().equals(user)) {
             transferHost(roomMember.getRoom());
         }
@@ -123,6 +136,7 @@ public class StudyRoomService {
         // Delete room if last person leave
         if (roomMembersSortedByJoinedAt.isEmpty()) {
             studyRoomRepository.delete(studyRoom);
+            redisRoomService.deleteRoomState(studyRoom.getId());
             return;
         }
 

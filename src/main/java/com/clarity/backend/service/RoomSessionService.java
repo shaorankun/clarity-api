@@ -16,6 +16,7 @@ import java.util.UUID;
 public class RoomSessionService {
 
     private final RoomSessionRepository roomSessionRepository;
+    private final RedisRoomService redisRoomService;
 
     // Set a timer to start a new room session
     public RoomSessionResponse startRoomSession(UUID roomId, User user, RoomSessionRequest roomSessionRequest) {
@@ -30,7 +31,11 @@ public class RoomSessionService {
         roomSession.setDurationMinutes(roomSessionRequest.getDurationMinutes());
         roomSessionRepository.save(roomSession);
 
-        return convertRoomSessionToResponse(roomSession);
+        // Save room state to Redis after save into DB
+        RoomSessionResponse roomSessionResponse = convertRoomSessionToResponse(roomSession);
+        redisRoomService.saveRoomState(roomSessionResponse);
+
+        return roomSessionResponse;
     }
 
     // Break still need duration for countdown
@@ -46,7 +51,11 @@ public class RoomSessionService {
         roomSession.setDurationMinutes(roomSessionRequest.getDurationMinutes());
         roomSessionRepository.save(roomSession);
 
-        return convertRoomSessionToResponse(roomSession);
+        // Save room state to Redis after save into DB
+        RoomSessionResponse roomSessionResponse = convertRoomSessionToResponse(roomSession);
+        redisRoomService.saveRoomState(roomSessionResponse);
+
+        return roomSessionResponse;
     }
 
     // End session and return to idle (no timer)
@@ -62,7 +71,11 @@ public class RoomSessionService {
         roomSession.setDurationMinutes(null);
         roomSessionRepository.save(roomSession);
 
-        return convertRoomSessionToResponse(roomSession);
+        // Save room state to Redis after save into DB
+        RoomSessionResponse roomSessionResponse = convertRoomSessionToResponse(roomSession);
+        redisRoomService.saveRoomState(roomSessionResponse);
+
+        return roomSessionResponse;
     }
 
     private RoomSessionResponse convertRoomSessionToResponse(RoomSession roomSession) {
