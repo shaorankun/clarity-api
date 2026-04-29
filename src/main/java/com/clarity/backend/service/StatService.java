@@ -36,11 +36,6 @@ public class StatService {
             streakRepository.save(streak);
         }
 
-        // Check mismatched user
-        if (!streak.getUser().equals(user)) {
-            throw new RuntimeException("User mismatch");
-        }
-
         return new StreakResponse(
                 streak.getCurrentStreak(),
                 streak.getLongestStreak(),
