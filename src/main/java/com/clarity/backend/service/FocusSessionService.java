@@ -51,6 +51,16 @@ public class FocusSessionService {
         if (startSessionRequest.getTaskId() != null) {
             task = taskRepository.findById(startSessionRequest.getTaskId()).orElse(null);
         }
+        // Can not start a session with a finished task
+        if (task != null && task.isCompleted()) {
+            throw new RuntimeException("Task is already completed");
+        }
+
+        // Check if there is any running session
+        if (focusSessionRepository.existsByUserAndStatus(user, "IN_PROGRESS")) {
+            throw new RuntimeException("There is already a focus session running");
+        }
+
         focusSession.setTask(task);
         focusSession.setDurationMinutes(startSessionRequest.getDurationMinutes());
 

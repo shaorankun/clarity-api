@@ -13,4 +13,6 @@ public interface FocusSessionRepository extends JpaRepository<FocusSession, UUID
     List<FocusSession> findByUser(User user);
 
     List<FocusSession> findByUserAndStartedAtBetween(User user, LocalDateTime startDate, LocalDateTime endDate);
+
+    boolean existsByUserAndStatus(User user, String status);
 }
