@@ -120,7 +120,7 @@ public class StudyRoomService {
         roomMemberRepository.delete(roomMember);
 
         // If the user is the host then transfer host and delete room if it was the last person
-        if (roomMember.getRoom().getOwnerUser().equals(user)) {
+        if (roomMember.getRoom().getOwnerUser().getId().equals(user.getId())) {
             transferHost(roomMember.getRoom());
         }
     }
