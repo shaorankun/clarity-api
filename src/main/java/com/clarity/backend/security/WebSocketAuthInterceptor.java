@@ -10,6 +10,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,10 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(@NonNull Message<?> message,@NonNull MessageChannel channel) {
         // wrap message before sending to channel and broadcast to an accessor
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (accessor == null) {
+            return message;
+        }
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             // Read token from header
@@ -36,6 +40,8 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             if (token == null) {
                 throw new RuntimeException("Authorization header missing (No Token)");
             }
+
+            if (token.startsWith("Bearer ")) token = token.substring(7);
 
             String extractedEmail = jwtService.extractEmail(token);
             if (extractedEmail == null) {
@@ -57,6 +63,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                     );
 
             accessor.setUser(authToken);
+            accessor.setLeaveMutable(true);
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
         return message;

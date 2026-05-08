@@ -88,7 +88,7 @@ public class RoomSessionService {
     }
 
     private void validateRoomOwner(User user, RoomSession roomSession) {
-        if (!user.equals(roomSession.getRoom().getOwnerUser())) {
+        if (!user.getId().equals(roomSession.getRoom().getOwnerUser().getId())) {
             throw new RuntimeException("You are not the owner of this room");
         }
     }
