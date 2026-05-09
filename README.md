@@ -4,9 +4,9 @@ A backend service for a productivity app combining personal focus session tracki
 
 Built with **Java 21 + Spring Boot**, backed by **PostgreSQL**, **Redis**, and **WebSocket (STOMP)**.
 
-> **Live API:** `https://your-render-url.onrender.com` *(update after deployment)*
+> **Live API:** `https://clarity-api-2dpy.onrender.com`
 > 
-> **API Docs (Swagger UI):** `https://your-render-url.onrender.com/swagger-ui/index.html`
+> **API Docs (Swagger UI):** `https://clarity-api-2dpy.onrender.com/swagger-ui/index.html`
 > 
 > **GitHub:** [https://github.com/shaorankun/clarity-api](https://github.com/shaorankun/clarity-api)
 
