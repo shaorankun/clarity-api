@@ -2,6 +2,7 @@ package com.clarity.backend.service;
 
 import com.clarity.backend.dto.*;
 import com.clarity.backend.model.User;
+import com.clarity.backend.repository.RoomMemberRepository;
 import com.clarity.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RedisRoomService redisRoomService;
+    private final RoomMemberRepository roomMemberRepository;
+    private final StudyRoomService studyRoomService;
 
     // Return response when register
     public AuthResponse register(RegisterRequest registerRequest) {
@@ -76,9 +79,14 @@ public class UserService {
         );
     }
 
-    // Blacklist refresh token when logout
-    public void logout(LogoutRequest logoutRequest) {
+    // Logout logic handle
+    public void logout(LogoutRequest logoutRequest, User user) {
+        // Blacklist refresh token when logout
         redisRoomService.blacklistToken(logoutRequest.getRefreshToken());
+
+        // Automatically leave study room when logging out
+        roomMemberRepository.findByUser(user)
+                .ifPresent(roomMember -> studyRoomService.leaveStudyRoom(roomMember.getRoom().getId(), user));
     }
 
     public RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {

@@ -1,6 +1,7 @@
 package com.clarity.backend.controller;
 
 import com.clarity.backend.dto.*;
+import com.clarity.backend.security.SecurityUtils;
 import com.clarity.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final SecurityUtils securityUtils;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
@@ -29,7 +31,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest logoutRequest) {
-        userService.logout(logoutRequest);
+        userService.logout(logoutRequest, securityUtils.getCurrentUser());
         return ResponseEntity.ok().build();
     }
 
