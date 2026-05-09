@@ -5,6 +5,9 @@ A backend service for a productivity app combining personal focus session tracki
 Built with **Java 21 + Spring Boot**, backed by **PostgreSQL**, **Redis**, and **WebSocket (STOMP)**.
 
 > **Live API:** `https://your-render-url.onrender.com` *(update after deployment)*
+> 
+> **API Docs (Swagger UI):** `https://your-render-url.onrender.com/swagger-ui/index.html`
+> 
 > **GitHub:** [https://github.com/shaorankun/clarity-api](https://github.com/shaorankun/clarity-api)
 
 ---
@@ -293,6 +296,9 @@ JWT_REFRESH_EXPIRATION=604800000
 ```
 
 Flyway will automatically run all database migrations on startup.
+
+### 4. API Documentation
+Once running, visit: `http://localhost:8080/swagger-ui/index.html`
 
 ---
 
