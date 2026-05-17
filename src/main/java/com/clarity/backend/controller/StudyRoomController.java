@@ -37,9 +37,8 @@ public class StudyRoomController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<Void> joinStudyRoom(@RequestBody JoinRoomRequest joinRoomRequest) {
-        studyRoomService.joinStudyRoom(securityUtils.getCurrentUser(), joinRoomRequest);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<StudyRoomResponse> joinStudyRoom(@RequestBody JoinRoomRequest joinRoomRequest) {
+        return ResponseEntity.ok(studyRoomService.joinStudyRoom(securityUtils.getCurrentUser(), joinRoomRequest));
     }
 
     @DeleteMapping("/{id}/leave")

@@ -94,7 +94,7 @@ public class StudyRoomService {
     }
 
     // Join a new study room
-    public void joinStudyRoom(User user, JoinRoomRequest joinRoomRequest) {
+    public StudyRoomResponse joinStudyRoom(User user, JoinRoomRequest joinRoomRequest) {
         // Check if user is in another room
         if (roomMemberRepository.existsByUser(user)) {
             throw new RuntimeException("You already joined a study room");
@@ -109,6 +109,10 @@ public class StudyRoomService {
         roomMember.setUser(user);
 
         roomMemberRepository.save(roomMember);
+
+        List<RoomMemberResponse> roomMembers = roomMemberService.getRoomMembers(studyRoom);
+
+        return convertStudyRoomToResponse(studyRoom, roomMembers);
     }
 
     // User leave a study room
