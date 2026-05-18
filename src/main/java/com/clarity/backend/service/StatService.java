@@ -70,9 +70,12 @@ public class StatService {
 
         // Get total minutes in a day from the previous list of sessions
         int totalMinutes = focusSessions.stream()
+                .filter(s -> s.getStatus().equals("COMPLETED"))
                 .mapToInt(FocusSession::getDurationMinutes)
                 .sum();
-        int sessionCount = focusSessions.size();
+        int sessionCount = (int) focusSessions.stream()
+                .filter(s -> s.getStatus().equals("COMPLETED"))
+                .count();
 
         // Get number of completed tasks by mapping from focus sessions list with conditions
         int tasksCompleted = (int) focusSessions.stream()
