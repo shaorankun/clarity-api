@@ -11,4 +11,5 @@ public class StudyRoomRequest {
     @NotBlank(message = "Room name is required")
     private String name;
 
+    private boolean isPublic;
 }

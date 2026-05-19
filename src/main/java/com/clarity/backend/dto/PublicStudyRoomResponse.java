@@ -5,14 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudyRoomResponse {
+public class PublicStudyRoomResponse {
 
     private UUID id;
 
@@ -25,6 +24,4 @@ public class StudyRoomResponse {
     private boolean isActive;
 
     private boolean isPublic;
-
-    private List<RoomMemberResponse> roomMembers;
 }

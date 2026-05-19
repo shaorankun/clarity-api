@@ -36,6 +36,7 @@ public class StudyRoomService {
         StudyRoom studyRoom = new StudyRoom();
         studyRoom.setOwnerUser(user);
         studyRoom.setName(studyRoomRequest.getName());
+        studyRoom.setPublic(studyRoomRequest.isPublic());
         String inviteCode;
 
         // Create a new generate code until it's not duplicate
@@ -88,31 +89,49 @@ public class StudyRoomService {
         return convertStudyRoomToResponse(studyRoom, roomMembers);
     }
 
-    // Get study room state (not all information like getStudyRoom
+    // Get all public study rooms information
+    public List<PublicStudyRoomResponse> getPublicStudyRooms() {
+        List<StudyRoom> studyRooms = studyRoomRepository.findByIsPublicTrue();
+
+        return studyRooms
+                .stream()
+                .map(studyRoom -> new PublicStudyRoomResponse(
+                        studyRoom.getId(),
+                        studyRoom.getOwnerUser().getId(),
+                        studyRoom.getName(),
+                        studyRoom.getInviteCode(),
+                        studyRoom.isActive(),
+                        studyRoom.isPublic()
+                ))
+                .toList();
+    }
+
+    // Get study room state (not all information like getStudyRoom)
     public RoomSessionResponse getStudyRoomState(UUID id) {
         return redisRoomService.getRoomState(id);
     }
 
     // Join a new study room
     public StudyRoomResponse joinStudyRoom(User user, JoinRoomRequest joinRoomRequest) {
-        // Check if user is in another room
-        if (roomMemberRepository.existsByUser(user)) {
-            throw new RuntimeException("You already joined a study room");
-        }
-
         // Check for the room using invite code
         StudyRoom studyRoom = studyRoomRepository.findByInviteCode(joinRoomRequest.getInviteCode())
                 .orElseThrow(() -> new RuntimeException("No study room found"));
 
-        RoomMember roomMember = new RoomMember();
-        roomMember.setRoom(studyRoom);
-        roomMember.setUser(user);
+        return joinRoom(user, studyRoom);
+    }
 
-        roomMemberRepository.save(roomMember);
+    // Join a public room without invite code
+    public StudyRoomResponse joinPublicStudyRoom(User user, UUID roomId) {
+        // Check for the room through public ID
+        StudyRoom studyRoom = studyRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("No study room found"));
 
-        List<RoomMemberResponse> roomMembers = roomMemberService.getRoomMembers(studyRoom);
+        // Check if the room is actually public
+        if (!studyRoom.isPublic()) {
+            throw new RuntimeException("Study room is not public");
+        }
 
-        return convertStudyRoomToResponse(studyRoom, roomMembers);
+        return joinRoom(user, studyRoom);
     }
 
     // User leave a study room
@@ -127,6 +146,24 @@ public class StudyRoomService {
         if (roomMember.getRoom().getOwnerUser().getId().equals(user.getId())) {
             transferHost(roomMember.getRoom());
         }
+    }
+
+    // Private method for handle join room logic for both private and public room
+    private StudyRoomResponse joinRoom(User user, StudyRoom studyRoom) {
+        // Check if user is in another room
+        if (roomMemberRepository.existsByUser(user)) {
+            throw new RuntimeException("You already joined a study room");
+        }
+
+        RoomMember roomMember = new RoomMember();
+        roomMember.setRoom(studyRoom);
+        roomMember.setUser(user);
+
+        roomMemberRepository.save(roomMember);
+
+        List<RoomMemberResponse> roomMembers = roomMemberService.getRoomMembers(studyRoom);
+
+        return convertStudyRoomToResponse(studyRoom, roomMembers);
     }
 
     // Private method to automatically transfer host when the current host leave
@@ -157,6 +194,7 @@ public class StudyRoomService {
                 studyRoom.getName(),
                 studyRoom.getInviteCode(),
                 studyRoom.isActive(),
+                studyRoom.isPublic(),
                 roomMembers
         );
     }

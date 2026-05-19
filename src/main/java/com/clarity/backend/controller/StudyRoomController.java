@@ -1,9 +1,6 @@
 package com.clarity.backend.controller;
 
-import com.clarity.backend.dto.JoinRoomRequest;
-import com.clarity.backend.dto.RoomSessionResponse;
-import com.clarity.backend.dto.StudyRoomRequest;
-import com.clarity.backend.dto.StudyRoomResponse;
+import com.clarity.backend.dto.*;
 import com.clarity.backend.security.SecurityUtils;
 import com.clarity.backend.service.StudyRoomService;
 import jakarta.validation.Valid;
@@ -11,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,6 +24,11 @@ public class StudyRoomController {
         return ResponseEntity.ok(studyRoomService.getStudyRoom(id));
     }
 
+    @GetMapping("/public")
+    public ResponseEntity<List<PublicStudyRoomResponse>> getPublicStudyRooms() {
+        return ResponseEntity.ok(studyRoomService.getPublicStudyRooms());
+    }
+
     @GetMapping("/{id}/state")
     public ResponseEntity<RoomSessionResponse> getStudyRoomState(@PathVariable UUID id) {
         return ResponseEntity.ok(studyRoomService.getStudyRoomState(id));
@@ -39,6 +42,11 @@ public class StudyRoomController {
     @PostMapping("/join")
     public ResponseEntity<StudyRoomResponse> joinStudyRoom(@RequestBody JoinRoomRequest joinRoomRequest) {
         return ResponseEntity.ok(studyRoomService.joinStudyRoom(securityUtils.getCurrentUser(), joinRoomRequest));
+    }
+
+    @PostMapping("{id}/join")
+    public ResponseEntity<StudyRoomResponse> joinPublicStudyRoom(@PathVariable UUID id) {
+        return ResponseEntity.ok(studyRoomService.joinPublicStudyRoom(securityUtils.getCurrentUser(), id));
     }
 
     @DeleteMapping("/{id}/leave")
