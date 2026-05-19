@@ -25,7 +25,7 @@ public class StudyRoomController {
     }
 
     @GetMapping("/public")
-    public ResponseEntity<List<PublicStudyRoomResponse>> getPublicStudyRooms() {
+    public ResponseEntity<List<StudyRoomResponse>> getPublicStudyRooms() {
         return ResponseEntity.ok(studyRoomService.getPublicStudyRooms());
     }
 

@@ -90,18 +90,12 @@ public class StudyRoomService {
     }
 
     // Get all public study rooms information
-    public List<PublicStudyRoomResponse> getPublicStudyRooms() {
-        List<StudyRoom> studyRooms = studyRoomRepository.findByIsPublicTrue();
-
-        return studyRooms
+    public List<StudyRoomResponse> getPublicStudyRooms() {
+        return studyRoomRepository.findByIsPublicTrue()
                 .stream()
-                .map(studyRoom -> new PublicStudyRoomResponse(
-                        studyRoom.getId(),
-                        studyRoom.getOwnerUser().getId(),
-                        studyRoom.getName(),
-                        studyRoom.getInviteCode(),
-                        studyRoom.isActive(),
-                        studyRoom.isPublic()
+                .map(studyRoom -> convertStudyRoomToResponse(
+                        studyRoom,
+                        roomMemberService.getRoomMembers(studyRoom)
                 ))
                 .toList();
     }
