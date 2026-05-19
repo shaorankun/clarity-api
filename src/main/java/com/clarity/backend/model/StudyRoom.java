@@ -1,5 +1,6 @@
 package com.clarity.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class StudyRoom {
     private boolean isActive = true;
 
     @Column(name = "is_public", nullable = false)
+    @JsonProperty("isPublic")
     private boolean isPublic = false;
 
     @Column(name = "created_at", nullable = false)
