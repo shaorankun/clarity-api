@@ -36,6 +36,13 @@ public class StatService {
             streakRepository.save(streak);
         }
 
+        LocalDate today = LocalDate.now();
+        LocalDate lastFocusDate = streak.getLastFocusDate();
+
+        if (lastFocusDate != null && lastFocusDate.isBefore(today.minusDays(1))) {
+            return new StreakResponse(0, streak.getLongestStreak(), lastFocusDate);
+        }
+
         return new StreakResponse(
                 streak.getCurrentStreak(),
                 streak.getLongestStreak(),
@@ -63,7 +70,7 @@ public class StatService {
     // Method for getting stat in 1 day
     private DailyStatResponse dailyStat(User user, LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay().minusNanos(1);
 
         // Find all focus sessions in today
         List<FocusSession> focusSessions = focusSessionRepository.findByUserAndStartedAtBetween(user, startOfDay, endOfDay);
